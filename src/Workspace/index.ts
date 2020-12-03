@@ -9,8 +9,4 @@ export interface Workspace extends Open, Close {
     symbol: string;
     // Windows belonging to Workspace
     windows: Iterable<Window>;
-    // Persist workspace to be retrieved later
-    save(): void;
 }
-
-// TODO implement interface
