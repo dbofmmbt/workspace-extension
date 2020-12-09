@@ -1,4 +1,4 @@
-import { StorageImpl } from "../Storage";
+import Storage, { StorageImpl } from "../Storage";
 import { WorkspaceImpl } from "../Workspace";
 import { WindowImpl, Window } from "../Workspace/Window";
 import { Tab, TabImpl } from "../Workspace/Window/Tab";
@@ -6,14 +6,21 @@ import { WorkspaceManager, WorkspaceManagerImpl } from "../WorkspaceManager";
 
 // Gets the Manager from storage.
 // In case there isn't a Manager, it'll return a newly created one.
+// The Manager will be automatically saved locally.
 export const fetchManager = async (): Promise<WorkspaceManager> => {
     let storage = new StorageImpl();
     let manager = await storage.load();
-    if (manager !== null) {
-        return manager;
-    } else {
-        return initManager();
+    if (manager === null) {
+        manager = await initManager();
     }
+    return ensureManagerIsSaved(storage, manager);
+}
+
+const ensureManagerIsSaved = (storage: Storage, manager: WorkspaceManager): Promise<WorkspaceManager> => {
+    return new Promise((resolve, _) => {
+        resolve(manager);
+        storage.save(manager);
+    });
 }
 
 const initManager = async (): Promise<WorkspaceManager> => {
