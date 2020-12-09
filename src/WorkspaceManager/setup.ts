@@ -10,7 +10,7 @@ import { WorkspaceManager, WorkspaceManagerImpl } from "../WorkspaceManager";
 export const fetchManager = async (): Promise<WorkspaceManager> => {
     let storage = new StorageImpl();
     let manager = await storage.load();
-    if (manager === null) {
+    if (manager === undefined) {
         manager = await initManager();
     }
     return ensureManagerIsSaved(storage, manager);
@@ -25,7 +25,7 @@ const ensureManagerIsSaved = (storage: Storage, manager: WorkspaceManager): Prom
 
 const initManager = async (): Promise<WorkspaceManager> => {
     return new Promise((resolve, _) => {
-        chrome.windows.getAll(chromeWindows => {
+        chrome.windows.getAll({ populate: true }, chromeWindows => {
             let windows = mapWindows(chromeWindows);
             let workspace = new WorkspaceImpl("Default");
             workspace.windows = windows;
