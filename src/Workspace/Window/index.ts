@@ -5,11 +5,26 @@ import { Tab } from "./Tab";
 export interface Window extends Open, Close {
     // List of tabs in the order they appear in the window
     tabs: Array<Tab>;
+    id: number | undefined;
+    // Adds the given Tab to Window.
+    addTab(tab: Tab): void;
+    // Removes the tab
+    removeTab(id: number): void;
 }
 
 export class WindowImpl implements Window {
     tabs: Array<Tab> = [];
     id: number | undefined;
+
+    addTab(tab: Tab): void {
+        this.tabs.push(tab);
+    }
+
+    removeTab(id: number): void {
+        const index = this.tabs.findIndex(tab => tab.id === id);
+        if (index === -1) return;
+        this.tabs.splice(index, 1);
+    }
 
     open(): void {
         chrome.windows.create(window => {
