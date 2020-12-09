@@ -15,11 +15,10 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
         this._workspaces = workspaces;
     }
 
-    // TODO this implementation is not complete.
-    // It's still necessary to open the workspace and
-    // close the previous one.
     turn_active(workspace: Workspace): void {
+        this._active.close();
         this._active = workspace;
+        this._active.open();
     }
 
     active(): Workspace {
