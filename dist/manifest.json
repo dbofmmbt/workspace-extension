@@ -9,7 +9,7 @@
     },
     "background": {
         "scripts": [
-            "js/eventPage.js"
+            "js/events.js"
         ],
         "persistent": false
     },
