@@ -10,21 +10,21 @@ chrome.runtime.onInstalled.addListener(details => {
 });
 
 chrome.runtime.onStartup.addListener(() => {
-    console.log("On Startup");
+    console.debug("runtime.OnStartup");
 });
 
 chrome.tabs.onCreated.addListener(tab => {
-    console.log(tab);
+    console.debug("tabs.onCreated:", tab);
 });
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-    console.log(tabId, removeInfo);
+    console.debug("tabs.onRemoved:", tabId, removeInfo);
 });
 
 chrome.windows.onCreated.addListener(tab => {
-    console.log(tab);
+    console.debug("windows.onCreated:", tab);
 });
 
 chrome.windows.onRemoved.addListener(windowId => {
-    console.log(windowId);
+    console.debug("windows.onRemoved:", windowId);
 });
