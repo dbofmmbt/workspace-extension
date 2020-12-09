@@ -9,6 +9,10 @@ export interface Workspace extends Open, Close {
     symbol: string;
     // Windows belonging to Workspace
     windows: Iterable<Window>;
+    // Adds the given Window to Workspace.
+    addWindow(window: Window): void;
+    // Remove the Window with the specified id from the Workspace, if any.
+    removeWindow(id: number): void;
 }
 
 export class WorkspaceImpl implements Workspace {
@@ -19,6 +23,16 @@ export class WorkspaceImpl implements Workspace {
     constructor(name: string) {
         this.name = name;
         this.symbol = this.makeSymbol(name);
+    }
+
+    addWindow(window: Window): void {
+        this.windows.push(window);
+    }
+
+    removeWindow(id: number): void {
+        const index = this.windows.findIndex(value => { value.id === id });
+        if (index == -1) return;
+        this.windows.splice(index, 1);
     }
 
     open(): void {
