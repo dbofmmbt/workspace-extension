@@ -3,6 +3,7 @@ import Open from "../../shared/Open";
 
 export interface Tab extends Open, Close {
     url: string;
+    id: number | undefined;
 }
 
 export class TabImpl implements Tab {
