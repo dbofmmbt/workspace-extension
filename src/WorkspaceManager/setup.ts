@@ -52,7 +52,7 @@ const mapWindows = (windows: chrome.windows.Window[]): Window[] => {
 const mapTabs = (tabs: chrome.tabs.Tab[]): Tab[] => {
     return tabs.map(chromeTab => {
         if (chromeTab.url !== undefined) {
-            let tab = new TabImpl(chromeTab.url);
+            let tab = new TabImpl(chromeTab.url, chromeTab.id);
             tab.id = chromeTab.id;
             return tab;
         } else {

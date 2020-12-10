@@ -3,14 +3,14 @@ import { Workspace } from "../Workspace";
 export interface WorkspaceManager {
     turn_active(workspace: Workspace): void;
     active(): Workspace;
-    workspaces(): Iterable<Workspace>;
+    workspaces(): Array<Workspace>;
 }
 
 export class WorkspaceManagerImpl implements WorkspaceManager {
     _active: Workspace;
-    _workspaces: Iterable<Workspace>;
+    _workspaces: Array<Workspace>;
 
-    constructor(workspaces: Iterable<Workspace>, active: Workspace) {
+    constructor(workspaces: Array<Workspace>, active: Workspace) {
         this._active = active;
         this._workspaces = workspaces;
     }
@@ -25,7 +25,7 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
         return this._active;
     }
 
-    workspaces(): Iterable<Workspace> {
+    workspaces(): Array<Workspace> {
         return this._workspaces;
     }
 }

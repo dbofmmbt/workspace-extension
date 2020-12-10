@@ -10,8 +10,9 @@ export class TabImpl implements Tab {
     url: string;
     id: number | undefined;
 
-    constructor(url: string) {
+    constructor(url: string, id: number | undefined) {
         this.url = url;
+        this.id = id;
     }
 
     open(): void {

@@ -8,7 +8,7 @@ export interface Workspace extends Open, Close {
     // Abbreviation of `name`
     symbol: string;
     // Windows belonging to Workspace
-    windows: Iterable<Window>;
+    windows: Array<Window>;
     // Adds the given Window to Workspace.
     addWindow(window: Window): void;
     // Remove the Window with the specified id from the Workspace, if any.
