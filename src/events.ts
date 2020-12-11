@@ -29,11 +29,11 @@ chrome.tabs.onCreated.addListener(chromeTab => {
     if (!url) return;
 
     fetchManager(manager => {
-        let windows = manager.active().windows;
+        let workspace = manager.active();
 
-        let window = windows.find(window => window.id === chromeTab.windowId);
+        let window = workspace.findWindow(chromeTab.windowId);
         if (!window) {
-            throw new Error("Couldn't find window to add tab.");
+            window = workspace.createWindow(chromeTab.windowId);
         }
 
         const tab = new TabImpl(url, chromeTab.id);
@@ -41,12 +41,33 @@ chrome.tabs.onCreated.addListener(chromeTab => {
     });
 });
 
+chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
+    if (!url) { return; }
+
+    console.debug("tabs.onUpdated:", tabId, url, chromeTab);
+
+    fetchManager(manager => {
+        let window = manager.active().findWindow(chromeTab.windowId);
+        if (!window) {
+            throw new Error("Couldn't find window to update tab.");
+        }
+
+        if (!chromeTab.id) { return; }
+        let tab = window.findTab(chromeTab.id);
+        if (!tab) {
+            throw new Error("Couldn't find tab to update it.");
+        }
+        tab.url = url;
+    });
+});
+
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     console.debug("tabs.onRemoved:", tabId, removeInfo);
-    let { windowId, isWindowClosing } = removeInfo;
+    let { windowId } = removeInfo;
+
     fetchManager(manager => {
         let workspace = manager.active();
-        let window = workspace.windows.find(window => window.id === windowId);
+        let window = workspace.findWindow(windowId);
         if (!window) {
             throw new Error("Couldn't find window to remove tab.");
         }
@@ -56,16 +77,28 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
             console.warn(`Tab with id ${tabId} was not found on window while removing it.`);
         };
 
-        if (isWindowClosing) {
+        if (window.tabs.length === 0) {
             workspace.removeWindow(windowId);
         }
     });
 });
 
-chrome.windows.onCreated.addListener(tab => {
-    console.debug("windows.onCreated:", tab);
+chrome.windows.onCreated.addListener(chromeWindow => {
+    console.debug("windows.onCreated:", chromeWindow);
+
+    fetchManager(manager => {
+        let workspace = manager.active();
+        let windowExists = workspace.findWindow(chromeWindow.id);
+        if (windowExists) { return; }
+        workspace.createWindow(chromeWindow.id);
+    });
 });
 
 chrome.windows.onRemoved.addListener(windowId => {
     console.debug("windows.onRemoved:", windowId);
+
+    fetchManager(manager => {
+        let workspace = manager.active();
+        workspace.removeWindow(windowId);
+    });
 });
