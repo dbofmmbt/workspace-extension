@@ -43,6 +43,23 @@ chrome.tabs.onCreated.addListener(chromeTab => {
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     console.debug("tabs.onRemoved:", tabId, removeInfo);
+    let { windowId, isWindowClosing } = removeInfo;
+    fetchManager(manager => {
+        let workspace = manager.active();
+        let window = workspace.windows.find(window => window.id === windowId);
+        if (!window) {
+            throw new Error("Couldn't find window to remove tab.");
+        }
+
+        let removalSucceeded = window.removeTab(tabId);
+        if (!removalSucceeded) {
+            console.warn(`Tab with id ${tabId} was not found on window while removing it.`);
+        };
+
+        if (isWindowClosing) {
+            workspace.removeWindow(windowId);
+        }
+    });
 });
 
 chrome.windows.onCreated.addListener(tab => {
