@@ -1,6 +1,6 @@
 import Close from "./shared/Close";
 import Open from "./shared/Open";
-import { Window } from "./Window";
+import { Window, WindowImpl } from "./Window";
 
 export interface Workspace extends Open, Close {
     // Workspace's identifier
@@ -9,10 +9,14 @@ export interface Workspace extends Open, Close {
     symbol: string;
     // Windows belonging to Workspace
     windows: Array<Window>;
+
+    findWindow(id: number): Window | undefined;
     // Adds the given Window to Workspace.
     addWindow(window: Window): void;
     // Remove the Window with the specified id from the Workspace, if any.
     removeWindow(id: number): void;
+
+    createWindow(id: number): Window;
 }
 
 export class WorkspaceImpl implements Workspace {
@@ -23,6 +27,16 @@ export class WorkspaceImpl implements Workspace {
     constructor(name: string) {
         this.name = name;
         this.symbol = this.makeSymbol(name);
+    }
+    createWindow(id: number): Window {
+        let window = new WindowImpl();
+        window.id = id;
+        this.addWindow(window);
+        return window;
+    }
+
+    findWindow(id: number): Window | undefined {
+        return this.windows.find(window => window.id === id);
     }
 
     addWindow(window: Window): void {
