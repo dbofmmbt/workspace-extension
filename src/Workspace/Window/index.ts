@@ -8,8 +8,9 @@ export interface Window extends Open, Close {
     id: number | undefined;
     // Adds the given Tab to Window.
     addTab(tab: Tab): void;
-    // Removes the tab
-    removeTab(id: number): void;
+    // Removes the tab. Returns true if the tab was removed, 
+    // false if the tab wasn't found.
+    removeTab(id: number): boolean;
 }
 
 export class WindowImpl implements Window {
@@ -20,10 +21,11 @@ export class WindowImpl implements Window {
         this.tabs.push(tab);
     }
 
-    removeTab(id: number): void {
+    removeTab(id: number): boolean {
         const index = this.tabs.findIndex(tab => tab.id === id);
-        if (index === -1) return;
+        if (index === -1) return false;
         this.tabs.splice(index, 1);
+        return true;
     }
 
     open(): void {
