@@ -3,7 +3,15 @@ import { fetchManager } from "./WorkspaceManager/setup";
 chrome.runtime.onInstalled.addListener(details => {
     console.debug("runtime.onInstalled:", details);
 
-    fetchManager().then(_manager => {
+    chrome.storage.sync.clear(function () {
+        console.log("Storage cleared.");
+        var error = chrome.runtime.lastError;
+        if (error) {
+            console.error(error);
+        }
+    });
+
+    fetchManager(_manager => {
         // Nothing to do. `fetchManager` will automatically
         // set the initial Workspace and saved it locally.
     });
