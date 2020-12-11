@@ -30,7 +30,7 @@ export class WorkspaceImpl implements Workspace {
     }
 
     removeWindow(id: number): void {
-        const index = this.windows.findIndex(value => { value.id === id });
+        const index = this.windows.findIndex(value => value.id === id);
         if (index == -1) return;
         this.windows.splice(index, 1);
     }
