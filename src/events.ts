@@ -1,3 +1,4 @@
+import { TabImpl } from "./Workspace/Window/Tab";
 import { fetchManager } from "./WorkspaceManager/setup";
 
 chrome.runtime.onInstalled.addListener(details => {
@@ -22,8 +23,22 @@ chrome.runtime.onStartup.addListener(() => {
     // Let's see if it remains that way in the test phase.
 });
 
-chrome.tabs.onCreated.addListener(tab => {
-    console.debug("tabs.onCreated:", tab);
+chrome.tabs.onCreated.addListener(chromeTab => {
+    console.debug("tabs.onCreated:", chromeTab);
+    const url = chromeTab.pendingUrl;
+    if (!url) return;
+
+    fetchManager(manager => {
+        let windows = manager.active().windows;
+
+        let window = windows.find(window => window.id === chromeTab.windowId);
+        if (!window) {
+            throw new Error("Couldn't find window to add tab.");
+        }
+
+        const tab = new TabImpl(url, chromeTab.id);
+        window.addTab(tab);
+    });
 });
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
