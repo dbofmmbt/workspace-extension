@@ -6,6 +6,8 @@ export interface Window extends Open, Close {
     // List of tabs in the order they appear in the window
     tabs: Array<Tab>;
     id: number | undefined;
+
+    findTab(id: number): Tab | undefined;
     // Adds the given Tab to Window.
     addTab(tab: Tab): void;
     // Removes the tab. Returns true if the tab was removed, 
@@ -16,6 +18,10 @@ export interface Window extends Open, Close {
 export class WindowImpl implements Window {
     tabs: Array<Tab> = [];
     id: number | undefined;
+
+    findTab(id: number): Tab | undefined {
+        return this.tabs.find(tab => tab.id === id);
+    }
 
     addTab(tab: Tab): void {
         this.tabs.push(tab);
