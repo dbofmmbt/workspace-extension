@@ -3,7 +3,7 @@
 This is a Chrome Extension to bring the Workspace feature into the browser.
 
 Workspaces are a set of windows with a list of tabs. Workspaces are useful to separate windows and tabs from different activities/projects in their own space.
-This way, we can keep our browser organized and ready to resume work from where we stopped, without the need to reopen a dozen of different tabs each time.  
+This way, we can keep our browser organized and ready to resume work from where we stopped, without the need to reopen a dozen of different tabs each time.
 
 Its development has just started! So, it'll take a while until it's ready to release.
 

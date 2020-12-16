@@ -6,5 +6,5 @@ This may demand this interface to change in order to
 denote this possibility.
 */
 export default interface Open {
-    open(): void;
+  open(): void;
 }
