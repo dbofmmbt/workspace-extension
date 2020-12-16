@@ -23,8 +23,10 @@
     "webpack-merge": "^5.5"
   },
   "dependencies": {
+    "@types/styled-components": "^5.1.5",
     "chrome-types": "^0.0.7",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0"
+    "react-dom": "^17.0.0",
+    "styled-components": "^5.2.1"
   }
 }
