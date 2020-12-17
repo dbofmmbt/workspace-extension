@@ -1,6 +1,6 @@
 import Close from "../shared/Close";
 import Open from "../shared/Open";
-import { Tab, TabImpl } from "./Tab";
+import { Tab } from "./Tab";
 
 export interface Window extends Open, Close {
   // List of tabs in the order they appear in the window
@@ -18,11 +18,6 @@ export interface Window extends Open, Close {
 export class WindowImpl implements Window {
   tabs: Array<Tab> = [];
   id: number | undefined;
-
-  constructor() {
-    const tab = new TabImpl(NEW_TAB_URL, undefined);
-    this.tabs.push(tab);
-  }
 
   findTab(id: number): Tab | undefined {
     return this.tabs.find((tab) => tab.id === id);
@@ -58,5 +53,3 @@ export class WindowImpl implements Window {
     }
   }
 }
-
-const NEW_TAB_URL = "chrome://newtab";
