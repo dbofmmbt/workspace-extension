@@ -1,9 +1,12 @@
-import { Workspace } from "../Workspace";
+import { Workspace, WorkspaceImpl } from "../Workspace";
+import { WindowImpl } from "../Workspace/Window";
 
 export interface WorkspaceManager {
   turn_active(workspace: Workspace): void;
   active(): Workspace;
   workspaces(): Array<Workspace>;
+  addWorkspace(name: string): void;
+  removeWorkspace(workspace: Workspace): void;
 }
 
 export class WorkspaceManagerImpl implements WorkspaceManager {
@@ -13,6 +16,18 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
   constructor(workspaces: Array<Workspace>, active: Workspace) {
     this._active = active;
     this._workspaces = workspaces;
+  }
+  addWorkspace(name: string): void {
+    const workspace = new WorkspaceImpl(name);
+    const window = new WindowImpl();
+    workspace.addWindow(window);
+  }
+
+  removeWorkspace(workspace: Workspace): void {
+    let index = this._workspaces.findIndex(ws => ws === workspace);
+    if (index === -1) { return; }
+
+    this._workspaces.splice(index, 1);
   }
 
   turn_active(workspace: Workspace): void {
