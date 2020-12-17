@@ -1,6 +1,8 @@
 import Close from "../../shared/Close";
 import Open from "../../shared/Open";
 
+const NEW_TAB_URL = "chrome://newtab";
+
 export interface Tab extends Open, Close {
   url: string;
   id: number | undefined;
@@ -27,4 +29,9 @@ export class TabImpl implements Tab {
     }
     chrome.tabs.remove(this.id, () => (this.id = undefined));
   }
+}
+
+export const defaultTab: () => Tab = () => {
+  let tab = new TabImpl(NEW_TAB_URL, undefined);
+  return tab;
 }
