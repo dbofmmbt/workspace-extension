@@ -47,7 +47,7 @@ export class WindowImpl implements Window {
 
       this.id = window.id;
       for (const tab of this.tabs) {
-        chrome.tabs.create({ url: tab.url, windowId: this.id });
+        chrome.tabs.create({ url: tab.url, windowId: this.id }, newTab => tab.id = newTab.id);
       }
     });
   }
