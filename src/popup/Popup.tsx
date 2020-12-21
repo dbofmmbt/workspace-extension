@@ -3,27 +3,14 @@ import { Workspace } from "../Workspace";
 import { fetchManager } from "../WorkspaceManager/setup";
 import { Icon } from "./Icon";
 import "./Popup.css";
+import { FormInput, WorkspaceForm } from "./WorkspaceForm";
 
 export default function Popup() {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [activeWorkspace, setActive] = useState<Workspace | undefined>(
     undefined
   );
-
-  const handleClick = useCallback(
-    (workspace: Workspace): void => {
-      if (workspace === activeWorkspace) {
-        return;
-      }
-
-      fetchManager((manager) => {
-        manager.turn_active(workspace);
-        setActive(workspace);
-      });
-    },
-    [activeWorkspace]
-  );
-
+  const [isCreating, setIsCreating] = useState<boolean>(false);
   useEffect(() => {
     fetchManager((manager) => {
       const workspaces = manager.workspaces();
@@ -33,18 +20,52 @@ export default function Popup() {
     });
   }, []);
 
+  const handleSelection = useCallback(
+    (workspace: Workspace): void => {
+      if (workspace === activeWorkspace) {
+        return;
+      }
+
+      fetchManager((manager) => {
+        let previouslyActive = manager.active();
+        let newActive = workspace;
+        setActive(newActive);
+        manager.turn_active(newActive);
+
+        // Perform Open and Close operations after the manager
+        // being updated on the storage
+        return () => {
+          newActive.open();
+          previouslyActive.close();
+        };
+      });
+    },
+    [activeWorkspace]
+  );
+
+  const handleCreation = (input: FormInput) => {
+    fetchManager((manager) => {
+      let newWorkspace = manager.addWorkspace(input.workspaceName);
+      setWorkspaces([...workspaces, newWorkspace]);
+      setIsCreating(false);
+    });
+  };
+
   return (
     <div className="popupContainer">
-      <div>
-        {workspaces.map((workspace, i) => (
-          <Icon
-            key={i}
-            onClick={() => handleClick(workspace)}
-            isActive={workspace === activeWorkspace}
-            symbol={workspace.symbol}
-          />
-        ))}
-      </div>
+      {workspaces.map((workspace, i) => (
+        <Icon
+          key={i}
+          onClick={() => handleSelection(workspace)}
+          isActive={workspace === activeWorkspace}
+          symbol={workspace.symbol}
+        />
+      ))}
+      {isCreating ? (
+        <WorkspaceForm submitHandler={handleCreation} />
+      ) : (
+        <div className="plus-icon" onClick={() => setIsCreating(true)} />
+      )}
     </div>
   );
 }
