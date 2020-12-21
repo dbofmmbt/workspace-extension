@@ -11,11 +11,11 @@ export default interface Storage {
 export class StorageImpl implements Storage {
   storage_key: string = "workspace-extension";
 
-  save(ws: WorkspaceManager): void {
-    console.debug("Manager before being stored:", ws);
-    let activeWorkspace = ws
+  save(manager: WorkspaceManager): Promise<void> {
+    console.debug("Manager before being stored:", manager);
+    let activeWorkspace = manager
       .workspaces()
-      .findIndex((workspace) => workspace === ws.active());
+      .findIndex((workspace) => workspace.name === manager.active().name);
 
     if (activeWorkspace === -1) {
       throw new Error("Active workspace must be present.");
@@ -23,11 +23,13 @@ export class StorageImpl implements Storage {
 
     let data: ManagerData = {
       activeWorkspace: activeWorkspace,
-      workspaces: ws.workspaces().map(to_storage_data),
+      workspaces: manager.workspaces().map(to_storage_data),
     };
-
-    chrome.storage.sync.set({ [this.storage_key]: data }, () => {
-      console.debug("Workspace information stored: ", data);
+    return new Promise((resolve, _reject) => {
+      chrome.storage.sync.set({ [this.storage_key]: data }, () => {
+        console.debug("Workspace information stored: ", data);
+        resolve();
+      });
     });
   }
 
