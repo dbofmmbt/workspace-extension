@@ -35,6 +35,10 @@ chrome.tabs.onCreated.addListener((chromeTab) => {
     if (!window) {
       window = workspace.createWindow(chromeTab.windowId);
     }
+    const id = chromeTab.id;
+    if (id && window.findTab(id)) {
+      return;
+    }
 
     const tab = new TabImpl(url, chromeTab.id);
     window.addTab(tab);
@@ -58,10 +62,12 @@ chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
       return;
     }
     let tab = window.findTab(chromeTab.id);
-    if (!tab) {
-      throw new Error("Couldn't find tab to update it.");
+    if (tab) {
+      tab.url = url;
+    } else {
+      tab = new TabImpl(url, chromeTab.id);
+      window.addTab(tab);
     }
-    tab.url = url;
   });
 });
 
