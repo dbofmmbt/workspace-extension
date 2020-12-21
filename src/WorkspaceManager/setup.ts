@@ -7,16 +7,21 @@ import { WorkspaceManager, WorkspaceManagerImpl } from "../WorkspaceManager";
 // Gets the Manager from storage.
 // In case there isn't a Manager, it'll return a newly created one.
 // The Manager will be automatically saved locally.
+// You may optionally return a callback which will be executed
+// after the manager is saved on the storage.
 export const fetchManager = async (
-  callback: (manager: WorkspaceManager) => void
+  managerCallback: (manager: WorkspaceManager) => (() => void | undefined) | void,
 ) => {
   let storage = new StorageImpl();
   let manager = await storage.load();
   if (manager === undefined) {
     manager = await initManager();
   }
-  callback(manager);
-  storage.save(manager);
+  let afterStorageCallback = managerCallback(manager);
+  let promise = storage.save(manager);
+  if (afterStorageCallback) {
+    promise.then(afterStorageCallback);
+  }
 };
 
 const initManager = async (): Promise<WorkspaceManager> => {
