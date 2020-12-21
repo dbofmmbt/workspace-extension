@@ -5,7 +5,7 @@ export interface WorkspaceManager {
   turn_active(workspace: Workspace): void;
   active(): Workspace;
   workspaces(): Array<Workspace>;
-  addWorkspace(name: string): void;
+  addWorkspace(name: string): Workspace;
   removeWorkspace(workspace: Workspace): void;
 }
 
@@ -17,10 +17,12 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
     this._active = active;
     this._workspaces = workspaces;
   }
-  addWorkspace(name: string): void {
+  addWorkspace(name: string): Workspace {
     const workspace = new WorkspaceImpl(name);
     const window = new WindowImpl();
     workspace.addWindow(window);
+    this._workspaces.push(workspace);
+    return workspace;
   }
 
   removeWorkspace(workspace: Workspace): void {
@@ -31,9 +33,8 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
   }
 
   turn_active(workspace: Workspace): void {
-    this._active.close();
     this._active = workspace;
-    this._active.open();
+    
   }
 
   active(): Workspace {
