@@ -1,5 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import styled from "styled-components";
 
 type FormProps = {
   submitHandler: (input: FormInput) => void;
@@ -13,15 +14,28 @@ export const WorkspaceForm = ({ submitHandler }: FormProps) => {
   const { register, errors, handleSubmit } = useForm<FormInput>();
   return (
     <div>
-      <form onSubmit={handleSubmit(submitHandler)}>
+      <Form onSubmit={handleSubmit(submitHandler)}>
         {errors.workspaceName && "First name is required"}
-        <input
+        <FormInput
           name="workspaceName"
           ref={register({ required: true })}
           placeholder="Workspace Name"
         />
-        <button type="submit">Create</button>
-      </form>
+        <FormButton type="submit">Create</FormButton>
+      </Form>
     </div>
   );
 };
+
+const Form = styled.form`
+  margin-left: 5px;
+`
+
+const FormInput = styled.input`
+  width: 110px;
+`
+
+
+const FormButton = styled.button`
+  width: 100%;
+`
