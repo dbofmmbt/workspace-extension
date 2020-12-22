@@ -13,7 +13,7 @@ export class StorageImpl implements Storage {
   storage_key: string = "workspace-extension";
 
   async save(manager: WorkspaceManager): Promise<void> {
-    console.debug("Manager before being stored:", manager);
+    console.debug("[STORAGE] Manager before being stored:", manager);
     let activeWorkspace = manager
       .workspaces()
       .findIndex((workspace) => workspace.name === manager.active().name);
@@ -28,13 +28,13 @@ export class StorageImpl implements Storage {
     };
 
     await browser.storage.sync.set({ [this.storage_key]: data });
-    console.debug("Workspace information stored: ", data);
+    console.debug("[STORAGE] Workspace information stored: ", data);
   }
 
   async load(): Promise<WorkspaceManager | undefined> {
     let result = await browser.storage.sync.get(this.storage_key);
     const manager_data: ManagerData | undefined = result[this.storage_key];
-    console.debug("Data from storage:", manager_data);
+    console.debug("[STORAGE] Data from storage:", manager_data);
 
     let manager = undefined;
     if (manager_data) {
