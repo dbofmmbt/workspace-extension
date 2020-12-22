@@ -11,7 +11,9 @@ import { WorkspaceManager, WorkspaceManagerImpl } from "../WorkspaceManager";
 // You may optionally return a callback which will be executed
 // after the manager is saved on the storage.
 export const fetchManager = async (
-  managerCallback: (manager: WorkspaceManager) => (() => void | undefined) | void,
+  managerCallback: (
+    manager: WorkspaceManager
+  ) => (() => void | undefined) | void
 ) => {
   let storage = new StorageImpl();
   let manager = await storage.load();

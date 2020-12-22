@@ -39,4 +39,4 @@ export class TabImpl implements Tab {
 export const defaultTab: () => Tab = () => {
   let tab = new TabImpl(NEW_TAB_URL, undefined);
   return tab;
-}
+};

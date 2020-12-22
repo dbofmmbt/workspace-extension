@@ -29,13 +29,12 @@ export const WorkspaceForm = ({ submitHandler }: FormProps) => {
 
 const Form = styled.form`
   margin-left: 5px;
-`
+`;
 
 const FormInput = styled.input`
   width: 110px;
-`
-
+`;
 
 const FormButton = styled.button`
   width: 100%;
-`
+`;

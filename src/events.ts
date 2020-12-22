@@ -51,7 +51,9 @@ chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
   fetchManager((manager) => {
     let window = manager.active().findWindow(chromeTab.windowId);
     if (!window) {
-      throw new Error(`Couldn't find window to update tab: ${chromeTab.windowId}`);
+      throw new Error(
+        `Couldn't find window to update tab: ${chromeTab.windowId}`
+      );
     }
 
     if (!chromeTab.id) {

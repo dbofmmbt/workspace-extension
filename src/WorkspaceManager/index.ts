@@ -26,15 +26,16 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
   }
 
   removeWorkspace(workspace: Workspace): void {
-    let index = this._workspaces.findIndex(ws => ws === workspace);
-    if (index === -1) { return; }
+    let index = this._workspaces.findIndex((ws) => ws === workspace);
+    if (index === -1) {
+      return;
+    }
 
     this._workspaces.splice(index, 1);
   }
 
   turn_active(workspace: Workspace): void {
     this._active = workspace;
-    
   }
 
   active(): Workspace {
