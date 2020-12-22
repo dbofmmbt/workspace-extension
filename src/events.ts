@@ -1,8 +1,7 @@
 import { TabImpl } from "./Workspace/Window/Tab";
 import { fetchManager } from "./WorkspaceManager/setup";
 
-chrome.runtime.onInstalled.addListener((details) => {
-  console.debug("runtime.onInstalled:", details);
+  console.debug("[EVENT] runtime.onInstalled:", details);
 
   chrome.storage.sync.clear(function () {
     console.log("Storage cleared.");
@@ -24,7 +23,7 @@ chrome.runtime.onStartup.addListener(() => {
 });
 
 chrome.tabs.onCreated.addListener((chromeTab) => {
-  console.debug("tabs.onCreated:", chromeTab);
+  console.debug("[EVENT] tabs.onCreated:", chromeTab);
   const url = chromeTab.pendingUrl;
   if (!url) return;
 
@@ -50,7 +49,7 @@ chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
     return;
   }
 
-  console.debug("tabs.onUpdated:", tabId, url, chromeTab);
+  console.debug("[EVENT] tabs.onUpdated:", tabId, url, chromeTab);
 
   fetchManager((manager) => {
     let window = manager.active().findWindow(chromeTab.windowId);
@@ -72,7 +71,7 @@ chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
 });
 
 chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  console.debug("tabs.onRemoved:", tabId, removeInfo);
+  console.debug("[EVENT] tabs.onRemoved:", tabId, removeInfo);
   let { windowId } = removeInfo;
 
   fetchManager((manager) => {
@@ -96,7 +95,7 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
 });
 
 chrome.windows.onCreated.addListener((chromeWindow) => {
-  console.debug("windows.onCreated:", chromeWindow);
+  console.debug("[EVENT] windows.onCreated:", chromeWindow);
 
   fetchManager((manager) => {
     let workspace = manager.active();
@@ -109,7 +108,7 @@ chrome.windows.onCreated.addListener((chromeWindow) => {
 });
 
 chrome.windows.onRemoved.addListener((windowId) => {
-  console.debug("windows.onRemoved:", windowId);
+  console.debug("[EVENT] windows.onRemoved:", windowId);
 
   fetchManager((manager) => {
     let workspace = manager.active();
