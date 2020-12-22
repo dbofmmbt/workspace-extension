@@ -15,7 +15,7 @@ export default function Popup() {
     fetchManager((manager) => {
       const workspaces = manager.workspaces();
       const active = manager.active();
-      setWorkspaces(workspaces);
+      setWorkspaces([...workspaces]);
       setActive(active);
     });
   }, []);
