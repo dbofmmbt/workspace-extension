@@ -1,3 +1,4 @@
+import { browser } from "webextension-polyfill-ts";
 import Close from "../shared/Close";
 import Open from "../shared/Open";
 import { defaultTab, Tab } from "./Tab";
@@ -39,22 +40,29 @@ export class WindowImpl implements Window {
     return true;
   }
 
-  open(): void {
-    chrome.windows.create((window) => {
-      if (window === undefined) {
-        throw new Error("Couldn't create window");
-      }
+  async open(): Promise<void> {
+    let window = await browser.windows.create();
+    if (!window) {
+      throw new Error("Couldn't create window");
+    }
 
-      this.id = window.id;
-      for (const tab of this.tabs) {
-        chrome.tabs.create({ url: tab.url, windowId: this.id }, newTab => tab.id = newTab.id);
-      }
+    this.id = window.id;
+    let promises = this.tabs.map(async (tab) => {
+      let newTab = await browser.tabs.create({
+        url: tab.url,
+        windowId: this.id,
+      });
+
+      tab.id = newTab.id;
+      return newTab;
     });
+
+    await Promise.all(promises);
   }
 
-  close(): void {
-    if (this.id !== undefined) {
-      chrome.windows.remove(this.id);
+  async close(): Promise<void> {
+    if (this.id) {
+      await browser.windows.remove(this.id);
     }
   }
 }

@@ -1,15 +1,12 @@
+import { browser } from "webextension-polyfill-ts";
 import { TabImpl } from "./Workspace/Window/Tab";
 import { fetchManager } from "./WorkspaceManager/setup";
 
+chrome.runtime.onInstalled.addListener(async (details) => {
   console.debug("[EVENT] runtime.onInstalled:", details);
 
-  chrome.storage.sync.clear(function () {
-    console.log("Storage cleared.");
-    var error = chrome.runtime.lastError;
-    if (error) {
-      console.error(error);
-    }
-  });
+  await browser.storage.sync.clear();
+  console.log("Storage cleared.");
 
   fetchManager((_manager) => {
     // Nothing to do. `fetchManager` will automatically

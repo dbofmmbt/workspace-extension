@@ -1,3 +1,4 @@
+import { browser } from "webextension-polyfill-ts";
 import { Workspace, WorkspaceImpl } from "../Workspace";
 import { WindowImpl } from "../Workspace/Window";
 import { TabImpl } from "../Workspace/Window/Tab";
@@ -11,7 +12,7 @@ export default interface Storage {
 export class StorageImpl implements Storage {
   storage_key: string = "workspace-extension";
 
-  save(manager: WorkspaceManager): Promise<void> {
+  async save(manager: WorkspaceManager): Promise<void> {
     console.debug("Manager before being stored:", manager);
     let activeWorkspace = manager
       .workspaces()
@@ -25,27 +26,21 @@ export class StorageImpl implements Storage {
       activeWorkspace: activeWorkspace,
       workspaces: manager.workspaces().map(to_storage_data),
     };
-    return new Promise((resolve, _reject) => {
-      chrome.storage.sync.set({ [this.storage_key]: data }, () => {
-        console.debug("Workspace information stored: ", data);
-        resolve();
-      });
-    });
+
+    await browser.storage.sync.set({ [this.storage_key]: data });
+    console.debug("Workspace information stored: ", data);
   }
 
-  load(): Promise<WorkspaceManager | undefined> {
-    return new Promise((resolve, _) => {
-      chrome.storage.sync.get(this.storage_key, (result) => {
-        const manager_data: ManagerData | undefined = result[this.storage_key];
-        console.debug("Data from storage:", manager_data);
-        if (manager_data) {
-          let manager = from_storage_data(manager_data);
-          resolve(manager);
-        } else {
-          resolve(undefined);
-        }
-      });
-    });
+  async load(): Promise<WorkspaceManager | undefined> {
+    let result = await browser.storage.sync.get(this.storage_key);
+    const manager_data: ManagerData | undefined = result[this.storage_key];
+    console.debug("Data from storage:", manager_data);
+
+    let manager = undefined;
+    if (manager_data) {
+      manager = from_storage_data(manager_data);
+    }
+    return manager;
   }
 }
 

@@ -1,5 +1,6 @@
 import Close from "../../shared/Close";
 import Open from "../../shared/Open";
+import { browser } from "webextension-polyfill-ts";
 
 const NEW_TAB_URL = "chrome://newtab";
 
@@ -17,17 +18,21 @@ export class TabImpl implements Tab {
     this.id = id;
   }
 
-  open(): void {
-    chrome.tabs.create({ url: this.url }, (tab) => {
-      this.id = tab.id;
-    });
-  }
-
-  close(): void {
-    if (this.id === undefined) {
+  async open(): Promise<void> {
+    if (this.url === NEW_TAB_URL) {
       return;
     }
-    chrome.tabs.remove(this.id, () => (this.id = undefined));
+
+    let tab = await browser.tabs.create({ url: this.url });
+    this.id = tab.id;
+  }
+
+  async close(): Promise<void> {
+    if (!this.id) {
+      return;
+    }
+    await browser.tabs.remove(this.id);
+    this.id = undefined;
   }
 }
 

@@ -49,16 +49,14 @@ export class WorkspaceImpl implements Workspace {
     this.windows.splice(index, 1);
   }
 
-  open(): void {
-    for (const window of this.windows) {
-      window.open();
-    }
+  async open(): Promise<void> {
+    let promises = this.windows.map((window) => window.open());
+    await Promise.all(promises);
   }
 
-  close(): void {
-    for (const window of this.windows) {
-      window.close();
-    }
+  async close(): Promise<void> {
+    let promises = this.windows.map((window) => window.close());
+    await Promise.all(promises);
   }
 
   private makeSymbol(name: string): string {

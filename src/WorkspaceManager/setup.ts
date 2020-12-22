@@ -1,3 +1,4 @@
+import { browser, Windows, Tabs } from "webextension-polyfill-ts";
 import { StorageImpl } from "../Storage";
 import { WorkspaceImpl } from "../Workspace";
 import { WindowImpl, Window } from "../Workspace/Window";
@@ -14,29 +15,26 @@ export const fetchManager = async (
 ) => {
   let storage = new StorageImpl();
   let manager = await storage.load();
-  if (manager === undefined) {
+  if (!manager) {
     manager = await initManager();
   }
   let afterStorageCallback = managerCallback(manager);
-  let promise = storage.save(manager);
+  await storage.save(manager);
   if (afterStorageCallback) {
-    promise.then(afterStorageCallback);
+    afterStorageCallback();
   }
 };
 
 const initManager = async (): Promise<WorkspaceManager> => {
-  return new Promise((resolve, _) => {
-    chrome.windows.getAll({ populate: true }, (chromeWindows) => {
-      let windows = mapWindows(chromeWindows);
-      let workspace = new WorkspaceImpl("Default");
-      workspace.windows = windows;
-      let manager = new WorkspaceManagerImpl([workspace], workspace);
-      resolve(manager);
-    });
-  });
+  let chromeWindows = await browser.windows.getAll({ populate: true });
+  let windows = mapWindows(chromeWindows);
+  let workspace = new WorkspaceImpl("Default");
+  workspace.windows = windows;
+  let manager = new WorkspaceManagerImpl([workspace], workspace);
+  return manager;
 };
 
-const mapWindows = (windows: chrome.windows.Window[]): Window[] => {
+const mapWindows = (windows: Windows.Window[]): Window[] => {
   return windows.map((chromeWindow) => {
     let window = new WindowImpl();
     window.id = chromeWindow.id;
@@ -49,7 +47,7 @@ const mapWindows = (windows: chrome.windows.Window[]): Window[] => {
   });
 };
 
-const mapTabs = (tabs: chrome.tabs.Tab[]): Tab[] => {
+const mapTabs = (tabs: Tabs.Tab[]): Tab[] => {
   return tabs.map((chromeTab) => {
     if (chromeTab.url !== undefined) {
       let tab = new TabImpl(chromeTab.url, chromeTab.id);
