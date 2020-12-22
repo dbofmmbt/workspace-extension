@@ -1,7 +1,7 @@
 import { browser } from "webextension-polyfill-ts";
 import Close from "../shared/Close";
 import Open from "../shared/Open";
-import { Tab } from "./Tab";
+import { NEW_TAB_URL, Tab } from "./Tab";
 
 export interface Window extends Open, Close {
   // List of tabs in the order they appear in the window
@@ -38,6 +38,7 @@ export class WindowImpl implements Window {
   async open(): Promise<void> {
     let window = await browser.windows.create();
     this.id = window.id;
+    this.tabs = this.tabs.filter((tab) => !tab.url.startsWith(NEW_TAB_URL));
     let promises = this.tabs.map(async (tab) => {
       let newTab = await browser.tabs.create({
         url: tab.url,

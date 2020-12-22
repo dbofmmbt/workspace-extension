@@ -2,7 +2,7 @@ import Close from "../../shared/Close";
 import Open from "../../shared/Open";
 import { browser } from "webextension-polyfill-ts";
 
-const NEW_TAB_URL = "chrome://newtab";
+export const NEW_TAB_URL = "chrome://newtab";
 
 export interface Tab extends Open, Close {
   url: string;
@@ -19,7 +19,7 @@ export class TabImpl implements Tab {
   }
 
   async open(): Promise<void> {
-    if (this.url === NEW_TAB_URL) {
+    if (this.url.startsWith(NEW_TAB_URL)) {
       return;
     }
 
