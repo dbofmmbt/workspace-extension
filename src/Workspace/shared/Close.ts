@@ -1,3 +1,3 @@
 export default interface Close {
-  close(): void;
+  close(): Promise<void>;
 }
