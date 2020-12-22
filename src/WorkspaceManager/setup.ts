@@ -13,17 +13,17 @@ import { WorkspaceManager, WorkspaceManagerImpl } from "../WorkspaceManager";
 export const fetchManager = async (
   managerCallback: (
     manager: WorkspaceManager
-  ) => (() => void | undefined) | void
+  ) => Promise<(() => Promise<void | undefined>) | void>
 ) => {
   let storage = new StorageImpl();
   let manager = await storage.load();
   if (!manager) {
     manager = await initManager();
   }
-  let afterStorageCallback = managerCallback(manager);
+  let afterStorageCallback = await managerCallback(manager);
   await storage.save(manager);
   if (afterStorageCallback) {
-    afterStorageCallback();
+    await afterStorageCallback();
   }
 };
 

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { browser } from "webextension-polyfill-ts";
 import { Workspace } from "../Workspace";
 import { fetchManager } from "../WorkspaceManager/setup";
 import { Icon } from "./Icon";
@@ -12,7 +13,7 @@ export default function Popup() {
   );
   const [isCreating, setIsCreating] = useState<boolean>(false);
   useEffect(() => {
-    fetchManager((manager) => {
+    fetchManager(async (manager) => {
       const workspaces = manager.workspaces();
       const active = manager.active();
       setWorkspaces([...workspaces]);
@@ -21,30 +22,18 @@ export default function Popup() {
   }, []);
 
   const handleSelection = useCallback(
-    (workspace: Workspace): void => {
+    async (workspace: Workspace): Promise<void> => {
       if (workspace === activeWorkspace) {
         return;
       }
-
-      fetchManager((manager) => {
-        let previouslyActive = manager.active();
-        let newActive = workspace;
-        setActive(newActive);
-        manager.turnActive(newActive);
-
-        // Perform Open and Close operations after the manager
-        // being updated on the storage
-        return () => {
-          newActive.open();
-          previouslyActive.close();
-        };
-      });
+      console.debug("[POPUP] Sending message to extension:", workspace);
+      await browser.runtime.sendMessage(undefined, workspace.name);
     },
     [activeWorkspace]
   );
 
   const handleCreation = (input: FormInput) => {
-    fetchManager((manager) => {
+    fetchManager(async (manager) => {
       let newWorkspace = manager.addWorkspace(input.workspaceName);
       setWorkspaces([...workspaces, newWorkspace]);
       setIsCreating(false);

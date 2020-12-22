@@ -1,35 +1,58 @@
 import { browser } from "webextension-polyfill-ts";
+import { Workspace } from "./Workspace";
 import { TabImpl } from "./Workspace/Window/Tab";
 import { fetchManager } from "./WorkspaceManager/setup";
+
+const EVENT_HANDLING_KEY = "EventHandling";
+
+export const setEventHandling = async (
+  shouldHandle: boolean
+): Promise<void> => {
+  console.debug("[SET_EVENT_HANDLING]:", shouldHandle);
+  await browser.storage.local.set({ [EVENT_HANDLING_KEY]: shouldHandle });
+};
+
+export const shouldHandleEvents = async (): Promise<boolean> => {
+  let generic_result = await browser.storage.local.get(EVENT_HANDLING_KEY);
+  let result: boolean = generic_result[EVENT_HANDLING_KEY];
+  return result;
+};
 
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.debug("[EVENT] runtime.onInstalled:", details);
 
   await browser.storage.sync.clear();
-  console.log("Storage cleared.");
+  console.log("[STORAGE] cleared.");
+  await setEventHandling(true);
 
-  fetchManager((_manager) => {
+  fetchManager(async (_manager) => {
     // Nothing to do. `fetchManager` will automatically
     // set the initial Workspace and saved it locally.
   });
 });
 
-chrome.runtime.onStartup.addListener(() => {
+chrome.runtime.onStartup.addListener(async () => {
   // In principle, there's nothing to do in this event, actually.
   // Let's see if it remains that way in the test phase.
 });
 
-chrome.tabs.onCreated.addListener((chromeTab) => {
+chrome.tabs.onCreated.addListener(async (chromeTab) => {
+  let shouldHandle = await shouldHandleEvents();
+  if (!shouldHandle) return;
+
   console.debug("[EVENT] tabs.onCreated:", chromeTab);
+
   const url = chromeTab.pendingUrl;
   if (!url) return;
 
-  fetchManager((manager) => {
+  fetchManager(async (manager) => {
     let workspace = manager.active();
 
     let window = workspace.findWindow(chromeTab.windowId);
     if (!window) {
-      window = workspace.createWindow(chromeTab.windowId);
+      throw new Error(
+        `Couldn't find window to create tab. windowId: ${chromeTab.windowId} tab.id: ${chromeTab.id}`
+      );
     }
     const id = chromeTab.id;
     if (id && window.findTab(id)) {
@@ -41,18 +64,23 @@ chrome.tabs.onCreated.addListener((chromeTab) => {
   });
 });
 
-chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
-  if (!url) {
-    return;
-  }
+chrome.tabs.onUpdated.addListener(async (tabId, { url }, chromeTab) => {
+  let shouldHandle = await shouldHandleEvents();
+  if (!shouldHandle) return;
+  if (!url) return;
 
   console.debug("[EVENT] tabs.onUpdated:", tabId, url, chromeTab);
 
-  fetchManager((manager) => {
-    let window = manager.active().findWindow(chromeTab.windowId);
+  fetchManager(async (manager) => {
+    let window;
+    for (let workspace of manager.workspaces()) {
+      window = workspace.findWindow(chromeTab.windowId);
+      if (window) break;
+    }
+
     if (!window) {
       throw new Error(
-        `Couldn't find window to update tab: ${chromeTab.windowId}`
+        `Couldn't find window to update tab. windowId: ${chromeTab.windowId} tabId: ${tabId}`
       );
     }
 
@@ -69,13 +97,25 @@ chrome.tabs.onUpdated.addListener((tabId, { url }, chromeTab) => {
   });
 });
 
-chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
-  console.debug("[EVENT] tabs.onRemoved:", tabId, removeInfo);
-  let { windowId } = removeInfo;
+chrome.tabs.onRemoved.addListener(async (tabId, removeInfo) => {
+  let shouldHandle = await shouldHandleEvents();
+  if (!shouldHandle) return;
 
-  fetchManager((manager) => {
-    let workspace = manager.active();
-    let window = workspace.findWindow(windowId);
+  console.debug("[EVENT] tabs.onRemoved:", tabId, removeInfo);
+
+  let { windowId, isWindowClosing } = removeInfo;
+  if (isWindowClosing) return;
+
+  fetchManager(async (manager) => {
+    let workspace: Workspace | undefined;
+    let window;
+    for (let ws of manager.workspaces()) {
+      window = ws.findWindow(windowId);
+      if (window) {
+        workspace = ws;
+        break;
+      }
+    }
     if (!window) {
       throw new Error("Couldn't find window to remove tab.");
     }
@@ -88,29 +128,52 @@ chrome.tabs.onRemoved.addListener((tabId, removeInfo) => {
     }
 
     if (window.tabs.length === 0) {
-      workspace.removeWindow(windowId);
+      workspace!.removeWindow(windowId);
     }
   });
 });
 
-chrome.windows.onCreated.addListener((chromeWindow) => {
+chrome.windows.onCreated.addListener(async (chromeWindow) => {
+  let shouldHandle = await shouldHandleEvents();
+  if (!shouldHandle) return;
+
   console.debug("[EVENT] windows.onCreated:", chromeWindow);
 
-  fetchManager((manager) => {
-    let workspace = manager.active();
-    let windowExists = workspace.findWindow(chromeWindow.id);
-    if (windowExists) {
-      return;
+  fetchManager(async (manager) => {
+    let windowExists;
+    for (let ws of manager.workspaces()) {
+      windowExists = ws.findWindow(chromeWindow.id);
+      if (windowExists) {
+        break;
+      }
     }
-    workspace.createWindow(chromeWindow.id);
+    if (!windowExists) {
+      manager.active().createWindow(chromeWindow.id);
+    }
   });
 });
 
-chrome.windows.onRemoved.addListener((windowId) => {
-  console.debug("[EVENT] windows.onRemoved:", windowId);
+chrome.windows.onRemoved.addListener(async (_windowId) => {
+  // There's nothing to do on this event right now.
+});
 
-  fetchManager((manager) => {
-    let workspace = manager.active();
-    workspace.removeWindow(windowId);
+browser.runtime.onMessage.addListener(async (message) => {
+  console.debug("[EVENT] Message Received:", message);
+  let name: string = message;
+  fetchManager(async (manager) => {
+    let previouslyActive = manager.active();
+    let newActive = manager.workspaces().find((ws) => ws.name === name);
+    if (!newActive)
+      throw new Error(`couldn't find workspace to activate. Name: ${name}`);
+
+    manager.turnActive(newActive);
+
+    await setEventHandling(false);
+    await newActive.open();
+    await previouslyActive.close();
+
+    return async () => {
+      await setEventHandling(true);
+    };
   });
 });
