@@ -1,5 +1,6 @@
 import { Workspace, WorkspaceImpl } from "../Workspace";
 import { WindowImpl } from "../Workspace/Window";
+import { defaultTab } from "../Workspace/Window/Tab";
 
 export interface WorkspaceManager {
   turn_active(workspace: Workspace): void;
@@ -20,6 +21,8 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
   addWorkspace(name: string): Workspace {
     const workspace = new WorkspaceImpl(name);
     const window = new WindowImpl();
+    const tab = defaultTab();
+    window.addTab(tab);
     workspace.addWindow(window);
     this._workspaces.push(workspace);
     return workspace;
