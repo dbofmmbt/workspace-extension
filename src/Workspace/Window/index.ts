@@ -37,10 +37,6 @@ export class WindowImpl implements Window {
 
   async open(): Promise<void> {
     let window = await browser.windows.create();
-    if (!window) {
-      throw new Error("Couldn't create window");
-    }
-
     this.id = window.id;
     let promises = this.tabs.map(async (tab) => {
       let newTab = await browser.tabs.create({
