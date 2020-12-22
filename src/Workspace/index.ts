@@ -26,7 +26,7 @@ export class WorkspaceImpl implements Workspace {
 
   constructor(name: string) {
     this.name = name;
-    this.symbol = this.makeSymbol(name);
+    this.symbol = this.makeSymbol();
   }
   createWindow(id: number): Window {
     let window = new WindowImpl();
@@ -59,7 +59,7 @@ export class WorkspaceImpl implements Workspace {
     await Promise.all(promises);
   }
 
-  private makeSymbol(name: string): string {
+  private makeSymbol(): string {
     let letters = this.name.match(/\b[a-zA-Z]/g);
     if (letters !== null) {
       return letters.join("");
