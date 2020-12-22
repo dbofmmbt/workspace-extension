@@ -30,7 +30,7 @@ export default function Popup() {
         let previouslyActive = manager.active();
         let newActive = workspace;
         setActive(newActive);
-        manager.turn_active(newActive);
+        manager.turnActive(newActive);
 
         // Perform Open and Close operations after the manager
         // being updated on the storage

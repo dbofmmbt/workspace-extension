@@ -3,7 +3,7 @@ import { WindowImpl } from "../Workspace/Window";
 import { defaultTab } from "../Workspace/Window/Tab";
 
 export interface WorkspaceManager {
-  turn_active(workspace: Workspace): void;
+  turnActive(workspace: Workspace): void;
   active(): Workspace;
   workspaces(): Array<Workspace>;
   addWorkspace(name: string): Workspace;
@@ -37,7 +37,7 @@ export class WorkspaceManagerImpl implements WorkspaceManager {
     this._workspaces.splice(index, 1);
   }
 
-  turn_active(workspace: Workspace): void {
+  turnActive(workspace: Workspace): void {
     this._active = workspace;
   }
 
