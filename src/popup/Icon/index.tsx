@@ -2,14 +2,15 @@ import React from "react";
 import styled from "styled-components";
 
 type IconProps = {
+  name: string;
   symbol: string;
   isActive: boolean;
   onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
-export const Icon = ({ symbol, isActive, onClick }: IconProps) => {
+export const Icon = ({ name, symbol, isActive, onClick }: IconProps) => {
   return (
-    <Wrapper isActive={isActive} onClick={onClick}>
+    <Wrapper title={name} isActive={isActive} onClick={onClick}>
       {symbol}
     </Wrapper>
   );

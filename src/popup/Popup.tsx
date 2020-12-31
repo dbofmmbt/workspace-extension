@@ -47,6 +47,7 @@ export default function Popup() {
           key={i}
           onClick={() => handleSelection(workspace)}
           isActive={workspace === activeWorkspace}
+          name={workspace.name}
           symbol={workspace.symbol}
         />
       ))}
